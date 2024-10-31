@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  googleId    String?      @unique @map("google_id")
+  email       String       @unique @map("email")
+  name        String?
+  password    String?
+  avatar      String?
+  school      String?
+  provinceId  Int?         @map("province_id")
+  cityId      Int?         @map("city_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  City        City?        @relation(fields: [cityId], references: [id])
+  ScanMetrics ScanMetric[]
+  Province    Province?    @relation(fields: [provinceId], references: [id])
+}
+
+model Province {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  City      City[]
+  User      User[]
+}
+
+model City {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  name       String
+  provinceId Int      @map("province_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  User       User[]
+  Province   Province @relation(fields: [provinceId], references: [id])
+}
+
+model Season {
+  id         String       @id @default(cuid())
+  name       String
+  code       String       @unique
+  startAt   DateTime     @map("start_at")
+  endAt      DateTime     @map("end_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  ScanMetric ScanMetric[]
+}
+
+model ScanMetric {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  seasonId  String?  @map("season_id")
+  scanId    String   @map("scan_id")
+  classId   String   @map("class_id")
+  subjectId String   @map("subject_id")
+  chapterId String   @map("chapter_id")
+  scanType  ScanType @map("scan_type")
+  scanXP    Int?     @map("scan_xp")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  User      User     @relation(fields: [userId], references: [id])
+  Season    Season?  @relation(fields: [seasonId], references: [id])
+}
+
+enum ScanType {
+  UJN
+  VID
+}

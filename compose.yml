@@ -1,0 +1,17 @@
+services:
+  app:
+    image: "oven/bun:debian"
+    entrypoint: []
+    command: "/bin/sh -c 'bun install && bunx prisma generate && bun run --watch src/index.ts'"
+    ports: [ "${PORT}:3000" ]
+    environment:
+      - PRISMA_DATABASE_URL=${PRISMA_DATABASE_URL}
+      - KYSELY_DATABASE_URL=${KYSELY_DATABASE_URL}
+      - PORT=3000
+      - NODE_ENV=production
+    volumes: [ "./:/home/bun/app" ]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: "1024M"

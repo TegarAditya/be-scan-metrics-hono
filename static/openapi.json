@@ -1,0 +1,214 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User and Metric API",
+    "version": "1.0.0",
+    "description": "API for managing users and metrics"
+  },
+  "paths": {
+    "/api/user": {
+      "post": {
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "googleId": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "name": { "type": "string" },
+                  "avatar": { "type": "string" },
+                  "school": { "type": "string" },
+                  "province_id": { "type": "integer" },
+                  "city_id": { "type": "integer" }
+                },
+                "required": ["email", "name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": { "description": "Failed to create user" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/api/user/{id}": {
+      "put": {
+        "summary": "Update an existing user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "googleId": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "name": { "type": "string" },
+                  "avatar": { "type": "string" },
+                  "school": { "type": "string" },
+                  "province_id": { "type": "integer" },
+                  "city_id": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated successfully" },
+          "400": { "description": "Failed to update user" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "get": {
+        "summary": "Get user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "id_type",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["id", "googleId"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "404": { "description": "User not found" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/api/user/{id}/xp": {
+      "get": {
+        "summary": "Get user's scan XP",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["math", "science", "history"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User's scan XP retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScanXP" }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/api/metric": {
+      "post": {
+        "summary": "Create a scan metric",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": { "type": "string" },
+                  "scan_id": { "type": "string" },
+                  "class_id": { "type": "string" },
+                  "chapter_id": { "type": "string" }
+                },
+                "required": ["user_id", "scan_id", "class_id", "chapter_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Scan metric created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScanMetric" }
+              }
+            }
+          },
+          "400": { "description": "Failed to create scan metric" },
+          "500": { "description": "Server error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "googleId": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "name": { "type": "string" },
+          "avatar": { "type": "string" },
+          "school": { "type": "string" },
+          "province_id": { "type": "integer" },
+          "city_id": { "type": "integer" }
+        }
+      },
+      "ScanXP": {
+        "type": "object",
+        "properties": {
+          "scanXP": { "type": "integer" }
+        }
+      },
+      "ScanMetric": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" },
+          "scanId": { "type": "string" },
+          "classId": { "type": "string" },
+          "subjectId": { "type": "string" },
+          "chapterId": { "type": "string" },
+          "scanType": { "type": "string" }
+        }
+      }
+    }
+  }
+}
