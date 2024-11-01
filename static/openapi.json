@@ -161,12 +161,18 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "user_id": { "type": "string" },
-                  "scan_id": { "type": "string" },
-                  "class_id": { "type": "string" },
-                  "chapter_id": { "type": "string" }
+                  "user_id": { "type": "string", "description": "Primary ID of user" },
+                  "scan_id": {
+                    "type": "string",
+                    "description": "ID of scan object",
+                    "example": "UJN-1234.xxx"
+                  },
+                  "class_id": { "type": "string", "description": "ID of class object" },
+                  "chapter_id": { "type": "string", "description": "ID of chapter object" },
+                  "scan_type": { "type": "string", "description": "Type of scan", "enum": ["UJN", "VID"] },
+                  "scan_xp": { "type": "integer", "description": "XP earned from scan" }
                 },
-                "required": ["user_id", "scan_id", "class_id", "chapter_id"]
+                "required": ["user_id", "scan_id", "class_id", "chapter_id", "scan_type", "scan_xp"]
               }
             }
           }
