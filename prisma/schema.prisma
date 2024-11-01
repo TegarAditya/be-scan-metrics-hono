@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("PRISMA_DATABASE_URL")
+  provider     = "mysql"
+  url          = env("PRISMA_DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -28,6 +29,9 @@ model User {
   City        City?        @relation(fields: [cityId], references: [id])
   ScanMetrics ScanMetric[]
   Province    Province?    @relation(fields: [provinceId], references: [id])
+
+  @@index([cityId])
+  @@index([provinceId])
 }
 
 model Province {
@@ -49,13 +53,15 @@ model City {
   updatedAt  DateTime @updatedAt @map("updated_at")
   User       User[]
   Province   Province @relation(fields: [provinceId], references: [id])
+
+  @@index([provinceId])
 }
 
 model Season {
   id         String       @id @default(cuid())
   name       String
   code       String       @unique
-  startAt   DateTime     @map("start_at")
+  startAt    DateTime     @map("start_at")
   endAt      DateTime     @map("end_at")
   createdAt  DateTime     @default(now()) @map("created_at")
   updatedAt  DateTime     @updatedAt @map("updated_at")
@@ -76,6 +82,9 @@ model ScanMetric {
   updatedAt DateTime @updatedAt @map("updated_at")
   User      User     @relation(fields: [userId], references: [id])
   Season    Season?  @relation(fields: [seasonId], references: [id])
+
+  @@index([userId])
+  @@index([seasonId])
 }
 
 enum ScanType {
