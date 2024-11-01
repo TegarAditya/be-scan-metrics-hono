@@ -24,14 +24,14 @@ export const createUser = factory.createHandlers(
   zValidator(
     "json",
     z.object({
-      googleId: z.string().optional(),
+      googleId: z.string(),
       email: z.string(),
       password: z.string().optional(),
       name: z.string(),
       avatar: z.string().optional(),
-      school: z.string().optional(),
-      province_id: z.coerce.number().optional(),
-      city_id: z.coerce.number().optional(),
+      school: z.string(),
+      province_id: z.coerce.number(),
+      city_id: z.coerce.number(),
     })
   ),
   async (c) => {
