@@ -5,10 +5,16 @@
     "version": "1.0.0",
     "description": "API for managing users and metrics"
   },
+  "tags": [
+    { "name": "User", "description": "Operations about users" },
+    { "name": "Metric", "description": "Operations about metrics" },
+    { "name": "Season", "description": "Operations about seasons" }
+  ],
   "paths": {
     "/api/user": {
       "post": {
         "summary": "Create a new user",
+        "tags": ["User"],
         "requestBody": {
           "required": true,
           "content": {
@@ -25,7 +31,7 @@
                   "province_id": { "type": "integer" },
                   "city_id": { "type": "integer" }
                 },
-                "required": ["email", "name"]
+                "required": ["googleId", "email", "name", "school", "province_id", "city_id"]
               }
             }
           }
@@ -49,6 +55,7 @@
     "/api/user/{id}": {
       "put": {
         "summary": "Update an existing user",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
@@ -85,6 +92,7 @@
       },
       "get": {
         "summary": "Get user by ID",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
@@ -115,6 +123,7 @@
     "/api/user/{id}/xp": {
       "get": {
         "summary": "Get user's scan XP",
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
@@ -144,6 +153,7 @@
     "/api/metric": {
       "post": {
         "summary": "Create a scan metric",
+        "tags": ["Metric"],
         "requestBody": {
           "required": true,
           "content": {
@@ -171,6 +181,28 @@
             }
           },
           "400": { "description": "Failed to create scan metric" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/api/season": {
+      "get": {
+        "summary": "Get current season",
+        "tags": ["Season"],
+        "responses": {
+          "200": {
+            "description": "Current season retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "season": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
           "500": { "description": "Server error" }
         }
       }
