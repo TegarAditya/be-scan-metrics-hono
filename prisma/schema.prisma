@@ -22,6 +22,7 @@ model User {
   password    String?
   avatar      String?
   school      String?
+  class       Int?         @map("class")
   provinceId  Int?         @map("province_id")
   cityId      Int?         @map("city_id")
   createdAt   DateTime     @default(now()) @map("created_at")
@@ -58,7 +59,7 @@ model City {
 }
 
 model Season {
-  id         String       @id @default(cuid())
+  id         Int          @id @default(autoincrement())
   name       String
   code       String       @unique
   startAt    DateTime     @map("start_at")
@@ -71,11 +72,9 @@ model Season {
 model ScanMetric {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
-  seasonId  String?  @map("season_id")
-  scanId    String   @map("scan_id")
-  classId   String   @map("class_id")
-  subjectId String   @map("subject_id")
-  chapterId String   @map("chapter_id")
+  seasonId  Int?     @map("season_id")
+  scanId    String   @default("0") @map("scan_id")
+  subject   String   @map("subject")
   scanType  ScanType @map("scan_type")
   scanXP    Int?     @map("scan_xp")
   createdAt DateTime @default(now()) @map("created_at")
@@ -90,4 +89,11 @@ model ScanMetric {
 enum ScanType {
   UJN
   VID
+  BNK
+}
+
+enum Subject {
+  MATEMATIKA
+  BAHASA_INDONESIA
+  BAHASA_INGGRIS
 }

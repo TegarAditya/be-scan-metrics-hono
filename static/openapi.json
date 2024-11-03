@@ -167,12 +167,11 @@
                     "description": "ID of scan object",
                     "example": "UJN-1234.xxx"
                   },
-                  "class_id": { "type": "string", "description": "ID of class object" },
-                  "chapter_id": { "type": "string", "description": "ID of chapter object" },
-                  "scan_type": { "type": "string", "description": "Type of scan", "enum": ["UJN", "VID"] },
+                  "subject": { "type": "string", "description": "Subject of scan" },
+                  "scan_type": { "type": "string", "description": "Type of scan", "enum": ["UJN", "VID", "BNK"] },
                   "scan_xp": { "type": "integer", "description": "XP earned from scan" }
                 },
-                "required": ["user_id", "scan_id", "class_id", "chapter_id", "scan_type", "scan_xp"]
+                "required": ["user_id", "scan_id", "subject", "scan_type", "scan_xp"]
               }
             }
           }

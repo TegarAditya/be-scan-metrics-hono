@@ -4,7 +4,7 @@ import { createFactory } from "hono/factory"
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason, getSeasonId } from "../utils/season"
 import { Prisma } from "@prisma/client"
-import { getSubjectMap, SubjectEnum, SubjectName } from "../utils/subject"
+import { SubjectEnum, SubjectName } from "../utils/subject"
 
 const factory = createFactory()
 
@@ -124,18 +124,24 @@ export const getUserScanXP = factory.createHandlers(
   async (c) => {
     try {
       const id = c.req.param("id")
+      const subject = c.req.query("subject") as SubjectName
 
-      const subjectArray = await getSubjectMap(c.req.query("subject") as SubjectName)
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [{ id }, { googleId: id }],
+        },
+        select: {
+          id: true,
+        },
+      })
 
       const scanXP = await prisma.scanMetric.aggregate({
         _sum: {
           scanXP: true,
         },
         where: {
-          userId: id,
-          subjectId: {
-            in: subjectArray,
-          },
+          userId: user?.id,
+          subject,
           createdAt: {
             gte: await getCurrentSeason().then((s) => s?.startAt),
             lte: await getCurrentSeason().then((s) => s?.endAt),
@@ -144,6 +150,45 @@ export const getUserScanXP = factory.createHandlers(
       })
 
       return c.json(scanXP, 200)
+    } catch (error: any) {
+      return c.json({ message: error.message }, 500)
+    }
+  }
+)
+
+export const getUserScanRank = factory.createHandlers(
+  zValidator("param", z.object({ id: z.string() })),
+  zValidator("query", z.object({ subject: SubjectEnum.optional() })),
+  async (c) => {
+    try {
+      const id = c.req.param("id")
+
+      const subject = c.req.query("subject") as SubjectName
+
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [{ id }, { googleId: id }],
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      if (!user) {
+        return c.json({ message: "User not found" }, 404)
+      }
+
+      const rank = await prisma.scanMetric.count({
+        where: {
+          subject,
+          createdAt: {
+            gte: await getCurrentSeason().then((s) => s?.startAt),
+            lte: await getCurrentSeason().then((s) => s?.endAt),
+          },
+        },
+      })
+
+      return c.json(rank, 200)
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
