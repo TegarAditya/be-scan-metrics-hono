@@ -92,18 +92,14 @@ export const updateUser = factory.createHandlers(
 
 // GET /api/user/:id
 export const getUserById = factory.createHandlers(
-  zValidator("query", z.object({ id_type: z.enum(["id", "googleId"]).optional() })),
-  zValidator("param", z.object({ id: z.coerce.number() })),
+  zValidator("param", z.object({ id: z.string() })),
   async (c) => {
     try {
       const id = c.req.param("id")
-      const { id_type } = c.req.query()
 
-      const whereId: Prisma.UserWhereUniqueInput = id_type === "id" ? { id } : { googleId: id }
-
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user.findFirst({
         where: {
-          ...whereId,
+          OR: [{ id }, { googleId: id }],
         },
       })
 
