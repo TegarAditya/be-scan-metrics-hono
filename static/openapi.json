@@ -98,12 +98,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
-          },
-          {
-            "name": "id_type",
-            "in": "query",
-            "schema": { "type": "string", "enum": ["id", "googleId"] }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
