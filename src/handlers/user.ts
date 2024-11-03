@@ -55,7 +55,7 @@ export const createUser = factory.createHandlers(
 
 // PUT /api/user/:id
 export const updateUser = factory.createHandlers(
-  zValidator("param", z.object({ id: z.coerce.number() })),
+  zValidator("param", z.object({ id: z.string() })),
   zValidator(
     "json",
     z.object({
@@ -63,7 +63,7 @@ export const updateUser = factory.createHandlers(
       email: z.string().email().optional(),
       password: z.string().optional(),
       name: z.string().optional(),
-      class: z.coerce.number().min(1).max(12),
+      class: z.coerce.number().min(1).max(12).optional(),
       avatar: z.string().optional(),
       school: z.string().optional(),
       province_id: z.coerce.number().optional(),
@@ -76,16 +76,24 @@ export const updateUser = factory.createHandlers(
       const body = await c.req.json()
       const userData = parseUserData(body, true)
 
-      const user = await prisma.user.update({
-        where: { id },
+      const updateUser = await prisma.user.updateMany({
+        where: {
+          OR: [{ id }, { googleId: id }],
+        },
         data: userData,
       })
 
-      if (!user) {
+      if (!updateUser) {
         return c.json({ message: "Failed to update user" }, 400)
       }
 
-      return c.json(user, 200)
+      const updatedUser = await prisma.user.findMany({
+        where: {
+          OR: [{ id }, { googleId: id }],
+        },
+      })
+
+      return c.json(updatedUser, 200)
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
