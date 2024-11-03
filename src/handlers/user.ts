@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator"
 import { z } from "zod"
 import { createFactory } from "hono/factory"
 import { prisma } from "../libs/prisma"
-import { getCurrentSeason, getSeasonId } from "../utils/season"
+import { getCurrentSeason } from "../utils/season"
 import { Prisma } from "@prisma/client"
 import { SubjectEnum, SubjectName } from "../utils/subject"
 
@@ -36,7 +36,8 @@ export const createUser = factory.createHandlers(
   ),
   async (c) => {
     try {
-      const body = await c.req.parseBody()
+      const body = await c.req.json()
+
       const userData = parseUserData(body)
 
       const user = await prisma.user.create({ data: userData })
@@ -70,7 +71,7 @@ export const updateUser = factory.createHandlers(
   async (c) => {
     try {
       const { id } = c.req.param()
-      const body = await c.req.parseBody()
+      const body = await c.req.json()
       const userData = parseUserData(body, true)
 
       const user = await prisma.user.update({

@@ -19,7 +19,7 @@ export const createScanMetric = factory.createHandlers(
   ),
   async (c) => {
     try { 
-      const body = await c.req.parseBody()
+      const body = await c.req.json()
 
       const userId = typeof body.user_id === "string" ? body.user_id : ""
       const scanId = typeof body.scan_id === "string" ? body.scan_id : ""
