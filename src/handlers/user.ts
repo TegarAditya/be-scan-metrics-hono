@@ -3,7 +3,6 @@ import { z } from "zod"
 import { createFactory } from "hono/factory"
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason } from "../utils/season"
-import { Prisma } from "@prisma/client"
 import { SubjectEnum, SubjectName } from "../utils/subject"
 
 const factory = createFactory()
@@ -25,7 +24,7 @@ export const createUser = factory.createHandlers(
     "json",
     z.object({
       googleId: z.string(),
-      email: z.string(),
+      email: z.string().email(),
       password: z.string().optional(),
       name: z.string(),
       avatar: z.string().optional(),
@@ -59,7 +58,7 @@ export const updateUser = factory.createHandlers(
     "json",
     z.object({
       googleId: z.string().optional(),
-      email: z.string().optional(),
+      email: z.string().email().optional(),
       password: z.string().optional(),
       name: z.string().optional(),
       avatar: z.string().optional(),
