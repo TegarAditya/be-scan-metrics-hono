@@ -27,6 +27,7 @@ export const createUser = factory.createHandlers(
       email: z.string().email(),
       password: z.string().optional(),
       name: z.string(),
+      class: z.coerce.number().min(1).max(12),
       avatar: z.string().optional(),
       school: z.string(),
       province_id: z.coerce.number(),
@@ -40,6 +41,7 @@ export const createUser = factory.createHandlers(
       const userData = parseUserData(body)
 
       const user = await prisma.user.create({ data: userData })
+
       if (!user) {
         return c.json({ message: "Failed to create user" }, 400)
       }
@@ -61,6 +63,7 @@ export const updateUser = factory.createHandlers(
       email: z.string().email().optional(),
       password: z.string().optional(),
       name: z.string().optional(),
+      class: z.coerce.number().min(1).max(12),
       avatar: z.string().optional(),
       school: z.string().optional(),
       province_id: z.coerce.number().optional(),
