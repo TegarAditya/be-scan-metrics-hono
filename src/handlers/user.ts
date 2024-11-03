@@ -132,6 +132,10 @@ export const getUserScanXP = factory.createHandlers(
         },
       })
 
+      if (!user) {
+        return c.json({ message: "User not found" }, 404)
+      }
+
       const scanXP = await prisma.scanMetric.aggregate({
         _sum: {
           scanXP: true,
@@ -146,7 +150,11 @@ export const getUserScanXP = factory.createHandlers(
         },
       })
 
-      return c.json(scanXP, 200)
+      if (!scanXP._sum.scanXP) {
+        return c.json({ scanXP: 0 }, 200)
+      }
+
+      return c.json(scanXP._sum, 200)
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
