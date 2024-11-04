@@ -6,7 +6,7 @@ const docs = new Hono()
 docs.get(
   "/",
   apiReference({
-    theme: "purple",
+    theme: "kepler",
     spec: {
       url: "/openapi.json",
     },

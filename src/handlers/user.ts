@@ -14,6 +14,7 @@ const parseUserData = (body: any, isUpdate = false) => ({
   name: typeof body.name === "string" ? body.name : isUpdate ? undefined : null,
   avatar: typeof body.avatar === "string" ? body.avatar : isUpdate ? undefined : null,
   school: typeof body.school === "string" ? body.school : isUpdate ? undefined : null,
+  class: typeof body.class === "number" ? body.class : isUpdate ? undefined : 1,
   provinceId: typeof body.province_id === "number" ? body.province_id : isUpdate ? undefined : 0,
   cityId: typeof body.city_id === "number" ? body.city_id : isUpdate ? undefined : 0,
 })
@@ -27,7 +28,7 @@ export const createUser = factory.createHandlers(
       email: z.string().email(),
       password: z.string().optional(),
       name: z.string(),
-      class: z.coerce.number().min(1).max(12),
+      class: z.coerce.number().min(1).max(12).default(1),
       avatar: z.string().optional(),
       school: z.string(),
       province_id: z.coerce.number(),
