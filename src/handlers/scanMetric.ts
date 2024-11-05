@@ -18,22 +18,18 @@ export const createScanMetric = factory.createHandlers(
     })
   ),
   async (c) => {
-    try { 
-      const body = await c.req.json()
+    try {
+      const { user_id, scan_id, subject, scan_xp } = await c.req.json()
 
-      const userId = typeof body.user_id === "string" ? body.user_id : ""
-      const scanId = typeof body.scan_id === "string" ? body.scan_id : ""
-      const subject = typeof body.subject === "string" ? body.subject : ""
-      const scanType = scanId.startsWith("VID") ? "VID" : scanId.startsWith("BNK") ? "BNK" : "UJN"
-      const scanXP = typeof body.scan_xp === "number" ? body.scan_xp : 0
+      const scanType = scan_id.startsWith("VID") ? "VID" : scan_id.startsWith("BNK") ? "BNK" : "UJN"
 
       const scanMetric = await prisma.scanMetric.create({
         data: {
-          userId,
-          scanId,
+          userId: user_id,
+          scanId: scan_id,
           subject,
           scanType,
-          scanXP,
+          scanXP: scan_xp,
         },
       })
 
