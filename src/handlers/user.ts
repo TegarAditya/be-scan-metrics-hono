@@ -203,7 +203,7 @@ export const getAllUserRankWithXP = factory.createHandlers(
         id: String(user.id),
         name: String(user.name),
         xp: Number(user.scan_xp_total),
-        rank: Number(user.rank),
+        rank: Number(user.scan_xp_total) ? Number(user.rank) : null,
       }))
 
       return c.json(result, 200)
@@ -246,7 +246,7 @@ export const getUserScanRankByID = factory.createHandlers(
         id: String(user.id),
         name: String(user.name),
         xp: Number(user.scan_xp_total),
-        rank: Number(user.rank),
+        rank: Number(user.scan_xp_total) ? Number(user.rank) : null,
       }))
 
       return c.json(result, 200)
