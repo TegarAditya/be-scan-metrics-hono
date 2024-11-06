@@ -1,6 +1,12 @@
 import { zValidator } from "@hono/zod-validator"
 import { z } from "zod"
 import { createFactory } from "hono/factory"
+import {
+  getUserRankWithXp,
+  getUserRankWithXpById,
+  getUserSubjectRankWithXp,
+  getUserSubjectRankWithXpById,
+} from "@prisma/client/sql"
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason } from "../utils/season"
 import { SubjectEnum, SubjectName } from "../utils/subject"
@@ -126,7 +132,7 @@ export const getUserById = factory.createHandlers(
 )
 
 // GET /api/user/:id/xp
-export const getUserScanXP = factory.createHandlers(
+export const getUserScanXPByID = factory.createHandlers(
   zValidator("param", z.object({ id: z.string() })),
   zValidator("query", z.object({ subject: SubjectEnum.optional() })),
   async (c) => {
@@ -172,14 +178,48 @@ export const getUserScanXP = factory.createHandlers(
   }
 )
 
-export const getUserScanRank = factory.createHandlers(
+// GET /api/user/rank
+export const getAllUserRankWithXP = factory.createHandlers(
+  zValidator(
+    "query",
+    z.object({
+      subject: SubjectEnum.optional(),
+      limit: z.coerce.number().optional(),
+    })
+  ),
+  async (c) => {
+    try {
+      const subject = c.req.query("subject") as SubjectName
+      const limit = Number(c.req.query("limit") || 100)
+
+      const resolver = subject ? getUserSubjectRankWithXp(subject, 100) : getUserRankWithXp(limit)
+      const userRank = await prisma.$queryRawTyped(resolver)
+
+      if (!userRank) {
+        return c.json({ message: "No user found" }, 404)
+      }
+
+      const result = userRank.map((user) => ({
+        id: String(user.id),
+        name: String(user.name),
+        xp: Number(user.scan_xp_total),
+        rank: Number(user.rank),
+      }))
+
+      return c.json(result, 200)
+    } catch (error: any) {
+      return c.json({ message: error.message }, 500)
+    }
+  }
+)
+
+// GET /api/user/:id/rank
+export const getUserScanRankByID = factory.createHandlers(
   zValidator("param", z.object({ id: z.string() })),
   zValidator("query", z.object({ subject: SubjectEnum.optional() })),
   async (c) => {
     try {
       const id = c.req.param("id")
-
-      const subject = c.req.query("subject") as SubjectName
 
       const user = await prisma.user.findFirst({
         where: {
@@ -194,17 +234,22 @@ export const getUserScanRank = factory.createHandlers(
         return c.json({ message: "User not found" }, 404)
       }
 
-      const rank = await prisma.scanMetric.count({
-        where: {
-          subject,
-          createdAt: {
-            gte: await getCurrentSeason().then((s) => s?.startAt),
-            lte: await getCurrentSeason().then((s) => s?.endAt),
-          },
-        },
-      })
+      const subject = c.req.query("subject") as SubjectName
+      
+      const resolver = subject
+        ? getUserSubjectRankWithXpById(subject, user.id)
+        : getUserRankWithXpById(user.id)
 
-      return c.json(rank, 200)
+      const rank = await prisma.$queryRawTyped(resolver)
+
+      const result = rank.map((user) => ({
+        id: String(user.id),
+        name: String(user.name),
+        xp: Number(user.scan_xp_total),
+        rank: Number(user.rank),
+      }))
+
+      return c.json(result, 200)
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
