@@ -4,6 +4,7 @@
 -- @param {Int} $4:limit Limit of the query
 SELECT
     `User`.`id`,
+    `User`.`avatar`,
     `User`.`name`,
     `User`.`school`,
     `User`.`class`,
