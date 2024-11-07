@@ -64,6 +64,7 @@ export const createSeason = factory.createHandlers(
   async (c) => {
     try {
       const body = await c.req.json()
+      
       const season = await prisma.season.create({
         data: {
           code: body.code,
