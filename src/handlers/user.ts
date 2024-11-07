@@ -132,6 +132,7 @@ export const getUserById = factory.createHandlers(
 )
 
 // GET /api/user/:id/xp
+/** @deprecated */
 export const getUserScanXPByID = factory.createHandlers(
   zValidator("param", z.object({ id: z.string() })),
   zValidator("query", z.object({ subject: SubjectEnum.optional() })),
@@ -144,9 +145,7 @@ export const getUserScanXPByID = factory.createHandlers(
         where: {
           OR: [{ id }, { googleId: id }],
         },
-        select: {
-          id: true,
-        },
+        select: { id: true },
       })
 
       if (!user) {
@@ -205,11 +204,12 @@ export const getAllUserRankWithXP = factory.createHandlers(
         return c.json({ message: "No user found" }, 404)
       }
 
-      const result = userRank.map((user) => ({
-        id: String(user.id),
-        name: String(user.name),
-        xp: Number(user.scan_xp_total),
-        rank: Number(user.scan_xp_total) ? Number(user.rank) : null,
+      const result = userRank.map(({ id, avatar, name, scan_xp_total, rank }) => ({
+        id: String(id),
+        avatar: avatar ? String(avatar) : null,
+        name: String(name),
+        xp: Number(scan_xp_total),
+        rank: scan_xp_total ? Number(rank) : null,
       }))
 
       return c.json(result, 200)
@@ -242,8 +242,10 @@ export const getUserScanRankByID = factory.createHandlers(
 
       const subject = c.req.query("subject") as SubjectName
 
-      const startDate = "2024-07-01"
-      const endDate = "2024-11-30"
+      const currentSeason = await getCurrentSeason()
+
+      const startDate = currentSeason ? currentSeason.startAt.toISOString() : "2024-07-01"
+      const endDate = currentSeason ? currentSeason.endAt.toISOString() : "2024-11-30"
 
       const resolver = subject
         ? getUserSubjectRankWithXpById(subject, startDate, endDate, user.id)
@@ -251,14 +253,14 @@ export const getUserScanRankByID = factory.createHandlers(
 
       const rank = await prisma.$queryRawTyped(resolver)
 
-      const result = rank.map((user) => ({
-        id: String(user.id),
-        name: String(user.name),
-        xp: Number(user.scan_xp_total),
-        rank: Number(user.scan_xp_total) ? Number(user.rank) : null,
+      const result = rank.map(({ id, name, scan_xp_total, rank }) => ({
+        id: String(id),
+        name: String(name),
+        xp: Number(scan_xp_total),
+        rank: scan_xp_total ? Number(rank) : null,
       }))
 
-      return c.json(result, 200)
+      return c.json(result[0], 200)
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
