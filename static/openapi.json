@@ -124,9 +124,9 @@
         }
       }
     },
-    "/api/user/{id}/xp": {
+    "/api/user/{id}/rank": {
       "get": {
-        "summary": "Get user's scan XP",
+        "summary": "Get user's scan rank with XP",
         "tags": ["User"],
         "parameters": [
           {
@@ -138,12 +138,12 @@
           {
             "name": "subject",
             "in": "query",
-            "schema": { "type": "string", "enum": ["math", "science", "history"] }
+            "schema": { "type": "string", "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"] }
           }
         ],
         "responses": {
           "200": {
-            "description": "User's scan XP retrieved successfully",
+            "description": "User's scan rank retrieved successfully",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/ScanXP" }
