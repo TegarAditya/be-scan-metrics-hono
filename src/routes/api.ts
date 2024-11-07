@@ -16,7 +16,6 @@ api.post("/user", ...createUser)
 api.get("/user/rank", ...getAllUserRankWithXP)
 api.put("/user/:id", ...updateUser)
 api.get("/user/:id", ...getUserById)
-api.get("/user/:id/xp", ...getUserScanXPByID)
 api.get("/user/:id/rank", ...getUserScanRankByID)
 
 api.post("/metric", ...createScanMetric)
