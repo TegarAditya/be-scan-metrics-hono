@@ -23,13 +23,33 @@ export const createScanMetric = factory.createHandlers(
 
       const scanType = scan_id.startsWith("VID") ? "VID" : scan_id.startsWith("BNK") ? "BNK" : "UJN"
 
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [{ id: user_id }, { googleId: user_id }],
+        },
+      })
+
+      if (!user) {
+        return c.json({ message: "User not found" }, 404)
+      }
+
+      const previousScan = await prisma.scanMetric.findFirst({
+        where: {
+          userId: user.id,
+          scanId: scan_id,
+        },
+        select: {
+          scanXP: true,
+        },
+      })
+
       const scanMetric = await prisma.scanMetric.create({
         data: {
-          userId: user_id,
+          userId: user.id,
           scanId: scan_id,
           subject,
           scanType,
-          scanXP: scan_xp,
+          scanXP: Number(scan_xp),
         },
       })
 
@@ -37,7 +57,25 @@ export const createScanMetric = factory.createHandlers(
         return c.json({ message: "Failed to create scan metric" }, 400)
       }
 
-      return c.json(scanMetric, 201)
+      if (previousScan && (previousScan.scanXP ?? 0) >= scan_xp) {
+        return c.json(
+          {
+            status: "duplicate",
+            message: "Duplicate scan metric",
+            data: scanMetric,
+          },
+          201
+        )
+      } else {
+        return c.json(
+          {
+            status: "success",
+            message: "Scan metric created/updated",
+            data: scanMetric,
+          },
+          201
+        )
+      }
     } catch (error: any) {
       return c.json({ message: error.message }, 500)
     }
