@@ -192,7 +192,13 @@ export const getAllUserRankWithXP = factory.createHandlers(
       const subject = c.req.query("subject") as SubjectName
       const limit = Number(c.req.query("limit") || 100)
 
-      const resolver = subject ? getUserSubjectRankWithXp(subject, 100) : getUserRankWithXp(limit)
+      const startDate = "2024-07-01"
+      const endDate = "2024-11-30"
+
+      const resolver = subject
+        ? getUserSubjectRankWithXp(subject, startDate, endDate, limit)
+        : getUserRankWithXp(startDate, endDate, limit)
+
       const userRank = await prisma.$queryRawTyped(resolver)
 
       if (!userRank) {
@@ -235,10 +241,13 @@ export const getUserScanRankByID = factory.createHandlers(
       }
 
       const subject = c.req.query("subject") as SubjectName
-      
+
+      const startDate = "2024-07-01"
+      const endDate = "2024-11-30"
+
       const resolver = subject
-        ? getUserSubjectRankWithXpById(subject, user.id)
-        : getUserRankWithXpById(user.id)
+        ? getUserSubjectRankWithXpById(subject, startDate, endDate, user.id)
+        : getUserRankWithXpById(startDate, endDate, user.id)
 
       const rank = await prisma.$queryRawTyped(resolver)
 

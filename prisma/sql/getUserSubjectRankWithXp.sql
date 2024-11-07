@@ -1,22 +1,32 @@
 -- @param {String} $1:subject Subject
--- @param {Int} $2:limit Limit of the query
+-- @param {String} $2:start_date Start date
+-- @param {String} $3:end_date End date
+-- @param {Int} $4:limit Limit of the query
 SELECT
-	`User`.`name`,
-	`User`.school,
-	`User`.class,
-	SUM(ScanMetric.scan_xp) AS scan_xp_total,
-	`User`.id,
-	RANK() OVER (
-		ORDER BY
-			SUM(ScanMetric.scan_xp) DESC
-	) AS rank
+    `User`.`id`,
+    `User`.`name`,
+    `User`.`school`,
+    `User`.`class`,
+    SUM(ScanMetric.max_scan_xp) AS scan_xp_total,
+    RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC) AS rank
 FROM
-	`User`
-	LEFT JOIN ScanMetric ON `User`.id = ScanMetric.user_id
-	AND ScanMetric.`subject` = ?
+    `User`
+    LEFT JOIN (
+        SELECT 
+            user_id,
+            scan_id,
+            MAX(scan_xp) AS max_scan_xp
+        FROM 
+            ScanMetric
+        WHERE 
+            `subject` = ?
+            AND `created_at` >= ?
+            AND `created_at` <= ?
+        GROUP BY 
+            user_id, scan_id
+    ) AS ScanMetric ON `User`.id = ScanMetric.user_id
 GROUP BY
-	`User`.id
+    `User`.id
 ORDER BY
-	scan_xp_total DESC
-LIMIT
-	?;
+    scan_xp_total DESC
+LIMIT ?;
