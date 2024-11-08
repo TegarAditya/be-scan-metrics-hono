@@ -3,7 +3,7 @@
   "info": {
     "title": "User and Metric API",
     "version": "1.0.0",
-    "description": "API for managing users and metrics"
+    "description": "API for managing users and metrics. Used for user registration, user update, user rank, and metric creation."
   },
   "tags": [
     {
