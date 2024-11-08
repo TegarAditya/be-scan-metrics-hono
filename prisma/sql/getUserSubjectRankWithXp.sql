@@ -22,7 +22,7 @@ FROM
         FROM 
             ScanMetric
         WHERE 
-            `subject` = ?
+            `subject` REGEXP ?
             AND `created_at` >= ?
             AND `created_at` <= ?
         GROUP BY 
