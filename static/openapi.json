@@ -6,9 +6,15 @@
     "description": "API for managing users and metrics"
   },
   "tags": [
-    { "name": "User", "description": "Operations about users" },
-    { "name": "Metric", "description": "Operations about metrics" },
-    { "name": "Season", "description": "Operations about seasons" }
+    {
+      "name": "User",
+      "description": "Operations about users including create user, update user, and get user rank"
+    },
+    { "name": "Metric", "description": "Operations about metrics including create metric" },
+    {
+      "name": "Season",
+      "description": "Operations about seasons including only get current season"
+    }
   ],
   "paths": {
     "/api/user": {
@@ -68,6 +74,7 @@
         "parameters": [
           {
             "name": "id",
+            "description": "ID or googleId of user",
             "in": "path",
             "required": true,
             "schema": { "type": "integer" }
@@ -124,9 +131,39 @@
         }
       }
     },
+    "/api/user/rank": {
+      "get": {
+        "summary": "List user's scan rank with XP",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "subject",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User's scan rank list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ScanXP" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
     "/api/user/{id}/rank": {
       "get": {
-        "summary": "Get user's scan rank with XP",
+        "summary": "Get user's scan rank with XP by ID",
         "tags": ["User"],
         "parameters": [
           {
@@ -138,7 +175,10 @@
           {
             "name": "subject",
             "in": "query",
-            "schema": { "type": "string", "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"] }
+            "schema": {
+              "type": "string",
+              "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"]
+            }
           }
         ],
         "responses": {
@@ -208,97 +248,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "season": { "type": "string" }
-                  }
+                  "$ref": "#/components/schemas/Season"
                 }
               }
             }
           },
           "500": { "description": "Server error" }
-        }
-      }
-    },
-    "/api/season": {
-      "post": {
-        "summary": "Create a new season",
-        "tags": ["Season"],
-        "operationId": "createSeason",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "description": "Unique code for the season"
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "Name of the season"
-                  },
-                  "startAt": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Start date of the season"
-                  },
-                  "endAt": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "End date of the season"
-                  }
-                },
-                "required": ["code", "name", "startAt", "endAt"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Season created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "startAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "endAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  }
-                }
-              }
-            }
-          }
         }
       }
     }
@@ -323,7 +278,10 @@
       "ScanXP": {
         "type": "object",
         "properties": {
-          "scanXP": { "type": "integer" }
+          "id": { "type": "string" },
+          "subject": { "type": "string" },
+          "rank": { "type": "integer" },
+          "xp": { "type": "integer" }
         }
       },
       "ScanMetric": {
@@ -333,6 +291,15 @@
           "scanId": { "type": "string" },
           "subject": { "type": "string" },
           "scanType": { "type": "string" }
+        }
+      },
+      "Season": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "startAt": { "type": "string", "example": "2024-01-01T00:00:00.000Z" },
+          "endAt": { "type": "string", "example": "2024-12-31T23:59:59.999Z" }
         }
       }
     }
