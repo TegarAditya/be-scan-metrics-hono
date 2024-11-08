@@ -1,13 +1,12 @@
 import { Hono } from "hono"
 import {
   createUser,
-  getUserScanXPByID,
   getUserById,
   updateUser,
   getAllUserRankWithXP,
   getUserScanRankByID,
 } from "../handlers/user"
-import { createScanMetric } from "../handlers/scanMetric"
+import { createScanMetric } from "../handlers/scan-metric"
 import { createSeason, getCurrentSeason, getSeason } from "../handlers/season"
 
 const api = new Hono()
