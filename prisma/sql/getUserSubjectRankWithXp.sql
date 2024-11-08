@@ -9,14 +9,16 @@ SELECT
     `User`.`school`,
     `User`.`class`,
     SUM(ScanMetric.max_scan_xp) AS scan_xp_total,
-    RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC) AS rank
+    MIN(ScanMetric.first_reach_date) AS first_reach_date, 
+    RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC, MIN(ScanMetric.first_reach_date) ASC) AS rank
 FROM
     `User`
     LEFT JOIN (
         SELECT 
             user_id,
             scan_id,
-            MAX(scan_xp) AS max_scan_xp
+            MAX(scan_xp) AS max_scan_xp,
+            MIN(created_at) AS first_reach_date
         FROM 
             ScanMetric
         WHERE 
@@ -29,5 +31,6 @@ FROM
 GROUP BY
     `User`.id
 ORDER BY
-    scan_xp_total DESC
+    scan_xp_total DESC,
+    first_reach_date ASC 
 LIMIT ?;
