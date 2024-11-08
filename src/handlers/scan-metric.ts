@@ -21,7 +21,7 @@ export const createScanMetric = factory.createHandlers(
     try {
       const { user_id, scan_id, subject, scan_xp } = await c.req.json()
 
-      const scanType = scan_id.startsWith("VID") ? "VID" : scan_id.startsWith("BNK") ? "BNK" : "UJN"
+      const scanType = scan_id.startsWith("VID") ? "VID" : scan_id.startsWith("UJN") ? "UJN" : "BNK"
 
       const user = await prisma.user.findFirst({
         where: {
