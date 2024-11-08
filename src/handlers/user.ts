@@ -10,6 +10,7 @@ import {
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason } from "../utils/season"
 import { SubjectEnum, SubjectName } from "../utils/subject"
+import { getSubjectEnumPattern, SubjectType } from "../enums/subject-enum"
 
 const factory = createFactory()
 
@@ -189,13 +190,27 @@ export const getAllUserRankWithXP = factory.createHandlers(
   async (c) => {
     try {
       const subject = c.req.query("subject") as SubjectName
+
+      const subjectPattern = (): string => {
+        switch (subject) {
+          case "MATEMATIKA":
+            return getSubjectEnumPattern("Matematika")
+          case "BAHASA_INDONESIA":
+            return getSubjectEnumPattern("BahasaIndonesia")
+          case "BAHASA_INGGRIS":
+            return getSubjectEnumPattern("BahasaInggris")
+          default:
+            return ".*"
+        }
+      }
+
       const limit = Number(c.req.query("limit") || 100)
 
       const startDate = "2024-07-01"
       const endDate = "2024-11-30"
 
       const resolver = subject
-        ? getUserSubjectRankWithXp(subject, startDate, endDate, limit)
+        ? getUserSubjectRankWithXp(subjectPattern(), startDate, endDate, limit)
         : getUserRankWithXp(startDate, endDate, limit)
 
       const userRank = await prisma.$queryRawTyped(resolver)
@@ -242,13 +257,26 @@ export const getUserScanRankByID = factory.createHandlers(
 
       const subject = c.req.query("subject") as SubjectName
 
+      const subjectPattern = (): string => {
+        switch (subject) {
+          case "MATEMATIKA":
+            return getSubjectEnumPattern("Matematika")
+          case "BAHASA_INDONESIA":
+            return getSubjectEnumPattern("BahasaIndonesia")
+          case "BAHASA_INGGRIS":
+            return getSubjectEnumPattern("BahasaInggris")
+          default:
+            return ".*"
+        }
+      }
+
       const currentSeason = await getCurrentSeason()
 
       const startDate = currentSeason ? currentSeason.startAt.toISOString() : "2024-07-01"
       const endDate = currentSeason ? currentSeason.endAt.toISOString() : "2024-11-30"
 
       const resolver = subject
-        ? getUserSubjectRankWithXpById(subject, startDate, endDate, user.id)
+        ? getUserSubjectRankWithXpById(subjectPattern(), startDate, endDate, user.id)
         : getUserRankWithXpById(startDate, endDate, user.id)
 
       const rank = await prisma.$queryRawTyped(resolver)
