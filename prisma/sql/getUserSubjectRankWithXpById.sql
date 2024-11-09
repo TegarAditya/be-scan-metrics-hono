@@ -5,19 +5,22 @@
 SELECT *
 FROM (
     SELECT
-        `User`.`name`, 
-        `User`.`school`, 
-        `User`.`class`, 
-        SUM(ScanMetric.max_scan_xp) AS scan_xp_total,
         `User`.`id`,
-        RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC) AS rank
+        `User`.`avatar`,
+        `User`.`name`,
+        `User`.`school`,
+        `User`.`class`,
+        SUM(ScanMetric.max_scan_xp) AS scan_xp_total,
+        MAX(ScanMetric.latest_reach_date) AS latest_reach_date, 
+        RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC, MAX(ScanMetric.latest_reach_date) DESC) AS rank
     FROM
         `User`
     LEFT JOIN (
         SELECT 
             user_id,
             scan_id,
-            MAX(scan_xp) AS max_scan_xp
+            MAX(scan_xp) AS max_scan_xp,
+            MAX(created_at) AS latest_reach_date
         FROM 
             ScanMetric
         WHERE 
