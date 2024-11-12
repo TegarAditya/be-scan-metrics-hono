@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator"
 import { z } from "zod"
 import { createFactory } from "hono/factory"
 import { prisma } from "../libs/prisma"
+import { getCurrentSeason } from "../utils/season"
 
 const factory = createFactory()
 
@@ -33,10 +34,16 @@ export const createScanMetric = factory.createHandlers(
         return c.json({ message: "User not found" }, 404)
       }
 
+      const currentSeason = await getCurrentSeason()
+
       const previousScan = await prisma.scanMetric.aggregate({
         where: {
           userId: user.id,
           scanId: scan_id,
+          createdAt: {
+            gte: currentSeason?.startAt,
+            lte: currentSeason?.endAt,
+          },
         },
         _max: {
           scanXP: true,
