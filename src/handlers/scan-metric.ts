@@ -56,7 +56,7 @@ export const createScanMetric = factory.createHandlers(
           scanId: scan_id,
           subject,
           scanType,
-          scanXP: Number(scan_xp),
+          scanXP: Math.floor(Number(scan_xp)),
         },
       })
 
