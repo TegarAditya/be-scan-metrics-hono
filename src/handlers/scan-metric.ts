@@ -33,12 +33,12 @@ export const createScanMetric = factory.createHandlers(
         return c.json({ message: "User not found" }, 404)
       }
 
-      const previousScan = await prisma.scanMetric.findFirst({
+      const previousScan = await prisma.scanMetric.aggregate({
         where: {
           userId: user.id,
           scanId: scan_id,
         },
-        select: {
+        _max: {
           scanXP: true,
         },
       })
@@ -57,21 +57,31 @@ export const createScanMetric = factory.createHandlers(
         return c.json({ message: "Failed to create scan metric" }, 400)
       }
 
-      if (previousScan && (previousScan.scanXP ?? 0) >= scan_xp) {
+      if (previousScan && (previousScan._max.scanXP ?? 0) >= scan_xp) {
+        const result = {
+          ...scanMetric,
+          pointsAdded: 0,
+        }
+
         return c.json(
           {
             status: "duplicate",
             message: "Duplicate scan metric",
-            data: scanMetric,
+            data: result,
           },
           201
         )
       } else {
+        const result = {
+          ...scanMetric,
+          pointsAdded: scan_xp - (Number(previousScan?._max?.scanXP) ?? 0),
+        }
+
         return c.json(
           {
             status: "success",
             message: "Scan metric created/updated",
-            data: scanMetric,
+            data: result,
           },
           201
         )
