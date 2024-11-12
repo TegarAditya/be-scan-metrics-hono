@@ -43,7 +43,7 @@ export const createScanMetric = factory.createHandlers(
         },
       })
 
-      const scanMetric = await prisma.scanMetric.create({
+      const newScanMetric = await prisma.scanMetric.create({
         data: {
           userId: user.id,
           scanId: scan_id,
@@ -53,41 +53,31 @@ export const createScanMetric = factory.createHandlers(
         },
       })
 
-      if (!scanMetric) {
+      if (!newScanMetric) {
         return c.json({ message: "Failed to create scan metric" }, 400)
       }
 
-      if (previousScan && (previousScan._max.scanXP ?? 0) >= scan_xp) {
-        const result = {
-          ...scanMetric,
-          pointsAdded: 0,
-        }
+      const previousScanXP = previousScan?._max?.scanXP ?? 0
+      const pointsAdded = scan_xp - previousScanXP
 
-        return c.json(
-          {
-            status: "duplicate",
-            message: "Duplicate scan metric",
-            data: result,
-          },
-          201
-        )
-      } else {
-        const result = {
-          ...scanMetric,
-          pointsAdded: scan_xp - (Number(previousScan?._max?.scanXP) ?? 0),
-        }
+      const responseStatus = previousScanXP >= scan_xp ? "duplicate" : "success"
+      const responseMessage =
+        previousScanXP >= scan_xp ? "Duplicate scan metric" : "Scan metric created/updated"
 
-        return c.json(
-          {
-            status: "success",
-            message: "Scan metric created/updated",
-            data: result,
+      return c.json(
+        {
+          status: responseStatus,
+          message: responseMessage,
+          data: {
+            ...newScanMetric,
+            pointsAdded: pointsAdded < 0 ? 0 : Math.floor(pointsAdded),
           },
-          201
-        )
-      }
-    } catch (error: any) {
-      return c.json({ message: error.message }, 500)
+        },
+        201
+      )
+    } catch (error) {
+      console.error("Error creating scan metric:", error)
+      return c.json({ message: "Internal Server Error" }, 500)
     }
   }
 )
