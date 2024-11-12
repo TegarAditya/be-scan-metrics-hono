@@ -223,7 +223,7 @@ export const getAllUserRankWithXP = factory.createHandlers(
         id: String(id),
         avatar: avatar ? String(avatar) : null,
         name: String(name),
-        xp: Number(scan_xp_total),
+        xp: Math.floor(Number(scan_xp_total)),
         rank: scan_xp_total ? Number(rank) : null,
       }))
 
@@ -284,7 +284,7 @@ export const getUserScanRankByID = factory.createHandlers(
       const result = rank.map(({ id, name, scan_xp_total, rank }) => ({
         id: String(id),
         name: String(name),
-        xp: Number(scan_xp_total),
+        xp: Math.floor(Number(scan_xp_total)),
         rank: scan_xp_total ? Number(rank) : null,
       }))
 
