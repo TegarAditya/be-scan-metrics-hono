@@ -10,7 +10,7 @@ import {
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason } from "../utils/season"
 import { SubjectEnum, SubjectName } from "../utils/subject"
-import { getSubjectEnumPattern, SubjectType } from "../enums/subject-enum"
+import { getSubjectEnumPattern } from "../enums/subject-enum"
 
 const factory = createFactory()
 
