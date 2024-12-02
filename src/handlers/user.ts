@@ -14,6 +14,20 @@ import { getSubjectEnumPattern } from "../enums/subject-enum"
 
 const factory = createFactory()
 
+const userSchema = z.object({
+  googleId: z.string(),
+  email: z.string().email(),
+  password: z.string().optional(),
+  name: z.string(),
+  class: z.coerce.number().min(1).max(12).default(1),
+  avatar: z.string().optional(),
+  school: z.string(),
+  province_id: z.coerce.number(),
+  city_id: z.coerce.number(),
+})
+
+type UserSchema = z.infer<typeof userSchema>
+
 const parseUserData = (body: any, isUpdate = false) => ({
   googleId: typeof body.googleId === "string" ? body.googleId : isUpdate ? undefined : null,
   email: typeof body.email === "string" ? body.email : isUpdate ? undefined : "",
@@ -27,57 +41,28 @@ const parseUserData = (body: any, isUpdate = false) => ({
 })
 
 // POST /api/user
-export const createUser = factory.createHandlers(
-  zValidator(
-    "json",
-    z.object({
-      googleId: z.string(),
-      email: z.string().email(),
-      password: z.string().optional(),
-      name: z.string(),
-      class: z.coerce.number().min(1).max(12).default(1),
-      avatar: z.string().optional(),
-      school: z.string(),
-      province_id: z.coerce.number(),
-      city_id: z.coerce.number(),
-    })
-  ),
-  async (c) => {
-    try {
-      const body = await c.req.json()
+export const createUser = factory.createHandlers(zValidator("json", userSchema), async (c) => {
+  try {
+    const body = await c.req.json()
 
-      const userData = parseUserData(body)
+    const userData = parseUserData(body)
 
-      const user = await prisma.user.create({ data: userData })
+    const user = await prisma.user.create({ data: userData })
 
-      if (!user) {
-        return c.json({ message: "Failed to create user" }, 400)
-      }
-
-      return c.json(user, 201)
-    } catch (error: any) {
-      return c.json({ message: error.message }, 500)
+    if (!user) {
+      return c.json({ message: "Failed to create user" }, 400)
     }
+
+    return c.json(user, 201)
+  } catch (error: any) {
+    return c.json({ message: error.message }, 500)
   }
-)
+})
 
 // PUT /api/user/:id
 export const updateUser = factory.createHandlers(
   zValidator("param", z.object({ id: z.string() })),
-  zValidator(
-    "json",
-    z.object({
-      googleId: z.string().optional(),
-      email: z.string().email().optional(),
-      password: z.string().optional(),
-      name: z.string().optional(),
-      class: z.coerce.number().min(1).max(12).optional(),
-      avatar: z.string().optional(),
-      school: z.string().optional(),
-      province_id: z.coerce.number().optional(),
-      city_id: z.coerce.number().optional(),
-    })
-  ),
+  zValidator("json", userSchema),
   async (c) => {
     try {
       const { id } = c.req.param()
@@ -204,10 +189,12 @@ export const getAllUserRankWithXP = factory.createHandlers(
         }
       }
 
-      const limit = Number(c.req.query("limit") || 100)
+      const limit = Number(c.req.query("limit") || 500)
 
-      const startDate = "2024-07-01"
-      const endDate = "2024-11-30"
+      const currentSeason = await getCurrentSeason()
+
+      const startDate = currentSeason ? currentSeason.startAt.toISOString() : "2024-07-01"
+      const endDate = currentSeason ? currentSeason.endAt.toISOString() : "2024-11-30"
 
       const resolver = subject
         ? getUserSubjectRankWithXp(subjectPattern(), startDate, endDate, limit)
