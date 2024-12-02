@@ -8,6 +8,7 @@ SELECT
     `User`.`name`,
     `User`.`school`,
     `User`.`class`,
+    `User`.`created_at`,
     SUM(ScanMetric.max_scan_xp) AS scan_xp_total,
     MIN(ScanMetric.first_reach_date) AS first_reach_date, 
     RANK() OVER (ORDER BY SUM(ScanMetric.max_scan_xp) DESC, MIN(ScanMetric.first_reach_date) ASC) AS rank
@@ -32,5 +33,6 @@ GROUP BY
     `User`.id
 ORDER BY
     scan_xp_total DESC,
-    first_reach_date ASC 
+    first_reach_date ASC,
+    created_at ASC
 LIMIT ?;
