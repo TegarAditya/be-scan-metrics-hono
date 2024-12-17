@@ -1,8 +1,8 @@
 services:
   app:
-    image: "oven/bun:debian"
-    entrypoint: []
-    command: "/bin/sh -c 'bun install && bunx prisma generate && bunx prisma generate --sql && bun run --watch src/index.ts'"
+    build:
+        context: .
+        dockerfile: Dockerfile
     ports: [ "${PORT}:3000" ]
     environment:
       - PRISMA_DATABASE_URL=${PRISMA_DATABASE_URL}
@@ -15,3 +15,4 @@ services:
         limits:
           cpus: "2"
           memory: "1024M"
+    restart: unless-stopped
