@@ -3,9 +3,13 @@ import { z } from "zod"
 import { createFactory } from "hono/factory"
 import {
   getUserRankWithXp,
+  getUserRankWithXpByCity,
   getUserRankWithXpById,
+  getUserRankWithXpByIdByCity,
   getUserSubjectRankWithXp,
+  getUserSubjectRankWithXpByCity,
   getUserSubjectRankWithXpById,
+  getUserSubjectRankWithXpByIdByCity,
 } from "@prisma/client/sql"
 import { prisma } from "../libs/prisma"
 import { getCurrentSeason } from "../utils/season"
@@ -169,12 +173,14 @@ export const getAllUserRankWithXP = factory.createHandlers(
     "query",
     z.object({
       subject: SubjectEnum.optional(),
+      city_id: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
     })
   ),
   async (c) => {
     try {
       const subject = c.req.query("subject") as SubjectName
+      const cityId = Number(c.req.query("city_id") || 0)
 
       const subjectPattern = (): string => {
         switch (subject) {
@@ -196,9 +202,14 @@ export const getAllUserRankWithXP = factory.createHandlers(
       const startDate = currentSeason ? currentSeason.startAt.toISOString() : "2024-07-01"
       const endDate = currentSeason ? currentSeason.endAt.toISOString() : "2024-11-30"
 
-      const resolver = subject
-        ? getUserSubjectRankWithXp(subjectPattern(), startDate, endDate, limit)
-        : getUserRankWithXp(startDate, endDate, limit)
+      const resolver =
+        subject && cityId
+          ? getUserSubjectRankWithXpByCity(subjectPattern(), startDate, endDate, cityId, limit)
+          : subject
+          ? getUserSubjectRankWithXp(subjectPattern(), startDate, endDate, limit)
+          : cityId
+          ? getUserRankWithXpByCity(startDate, endDate, cityId, limit)
+          : getUserRankWithXp(startDate, endDate, limit)
 
       const userRank = await prisma.$queryRawTyped(resolver)
 
@@ -224,7 +235,13 @@ export const getAllUserRankWithXP = factory.createHandlers(
 // GET /api/user/:id/rank
 export const getUserScanRankByID = factory.createHandlers(
   zValidator("param", z.object({ id: z.string() })),
-  zValidator("query", z.object({ subject: SubjectEnum.optional() })),
+  zValidator(
+    "query",
+    z.object({
+      subject: SubjectEnum.optional(),
+      city_id: z.coerce.number().optional(),
+    })
+  ),
   async (c) => {
     try {
       const id = c.req.param("id")
@@ -257,14 +274,27 @@ export const getUserScanRankByID = factory.createHandlers(
         }
       }
 
+      const cityId = Number(c.req.query("city_id") || 0)
+
       const currentSeason = await getCurrentSeason()
 
       const startDate = currentSeason ? currentSeason.startAt.toISOString() : "2024-07-01"
       const endDate = currentSeason ? currentSeason.endAt.toISOString() : "2024-11-30"
 
-      const resolver = subject
-        ? getUserSubjectRankWithXpById(subjectPattern(), startDate, endDate, user.id)
-        : getUserRankWithXpById(startDate, endDate, user.id)
+      const resolver =
+        subject && cityId
+          ? getUserSubjectRankWithXpByIdByCity(
+              subjectPattern(),
+              startDate,
+              endDate,
+              cityId,
+              user.id
+            )
+          : subject
+          ? getUserSubjectRankWithXpById(subjectPattern(), startDate, endDate, user.id)
+          : cityId
+          ? getUserRankWithXpByIdByCity(startDate, endDate, cityId, user.id)
+          : getUserRankWithXpById(startDate, endDate, user.id)
 
       const rank = await prisma.$queryRawTyped(resolver)
 
