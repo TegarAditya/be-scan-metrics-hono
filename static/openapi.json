@@ -143,6 +143,16 @@
               "type": "string",
               "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"]
             }
+          },
+          {
+            "name": "city_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
@@ -179,6 +189,11 @@
               "type": "string",
               "enum": ["MATEMATIKA", "BAHASA_INDONESIA", "BAHASA_INGGRIS"]
             }
+          },
+          {
+            "name": "city_id",
+            "in": "query",
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
