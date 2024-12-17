@@ -6,6 +6,7 @@ import { trimTrailingSlash } from "hono/trailing-slash"
 import { serveStatic } from "hono/bun"
 import api from "./routes/api"
 import docs from "./routes/docs"
+import healthcheck from "./routes/healthcheck"
 
 const app = new Hono()
 
@@ -15,6 +16,7 @@ app.use("/*", serveStatic({ root: "./static/" }))
 
 app.route("/api", api)
 app.route("/docs", docs)
+app.route("/healthcheck", healthcheck)
 
 export default {
   port: process.env.PORT || 3000,
