@@ -2,7 +2,7 @@ services:
   app:
     build:
         context: .
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.multistage
     ports: [ "${PORT}:3000" ]
     environment:
       - PRISMA_DATABASE_URL=${PRISMA_DATABASE_URL}
