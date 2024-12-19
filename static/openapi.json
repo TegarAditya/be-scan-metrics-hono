@@ -14,6 +14,10 @@
     {
       "name": "Season",
       "description": "Operations about seasons including only get current season"
+    },
+    {
+      "name": "Health",
+      "description": "Operations about health check including only get health status"
     }
   ],
   "paths": {
@@ -269,6 +273,41 @@
             }
           },
           "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/healthcheck": {
+      "get": {
+        "summary": "Get health status",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "message": { "type": "string", "example": "OK" } }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
