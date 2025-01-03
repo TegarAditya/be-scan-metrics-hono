@@ -4,6 +4,7 @@ services:
         context: .
         dockerfile: Dockerfile.multistage
     ports: [ "${PORT}:3000" ]
+    env_file: .env
     environment:
       - PRISMA_DATABASE_URL=${PRISMA_DATABASE_URL}
       - KYSELY_DATABASE_URL=${KYSELY_DATABASE_URL}
